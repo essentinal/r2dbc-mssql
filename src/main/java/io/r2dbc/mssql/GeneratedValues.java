@@ -85,10 +85,20 @@ final class GeneratedValues {
     static String augmentQuery(String sql, @Nullable String[] generatedColumns) {
 
         if (shouldExpectGeneratedKeys(generatedColumns)) {
-            return sql + " " + getGeneratedKeysClause(generatedColumns);
+            return fixGeneratedKeys(sql);
         }
 
         return sql;
+    }
+
+    private static String fixGeneratedKeys(final String sql) {
+        String s = sql;
+
+        if (s.contains("SCOPE_IDENTITY")) {
+            s = s.substring(0, sql.toUpperCase().indexOf("SELECT SCOPE_IDENTITY"));
+        }
+
+        return s.replace(") VALUES(", ") OUTPUT inserted.id AS GENERATED_KEYS VALUES(");
     }
 
     /**
